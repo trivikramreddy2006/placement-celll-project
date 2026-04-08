@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <a href="{% url 'teacher_dashboard' %}" style="color: var(--primary); text-decoration: none;">&larr; Back to Dashboard</a>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h2>Applicants for {{ company.name }}</h2>
+    <p style="color: var(--text-muted);">Total Applications: {{ applications.count }}</p>
+</div>
+
+<div class="card">
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Branch</th>
+                    <th>CGPA</th>
+                    <th>Backlogs</th>
+                    <th>Applied At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td><strong>{{ application.student.username }}</strong></td>
+                    <td>{{ application.student.email }}</td>
+                    <td>{{ application.student.student_profile.branch }}</td>
+                    <td>{{ application.student.student_profile.cgpa }}</td>
+                    <td>
+                        <span style="color: {% if application.student.student_profile.active_backlogs > 0 %}var(--danger){% else %}var(--text-main){% endif %};">
+                            {{ application.student.student_profile.active_backlogs }}
+                        </span>
+                    </td>
+                    <td style="color: var(--text-muted); font-size: 0.9rem;">{{ application.applied_at|date:"M d, Y, h:i A" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students have applied yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
