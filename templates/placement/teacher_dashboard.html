@@ -34,8 +34,16 @@
                     <td>{{ company.min_cgpa }}</td>
                     <td>{{ company.max_backlogs }}</td>
                     <td style="color: var(--text-muted); font-size: 0.9rem;">{{ company.created_at|date:"M d, Y" }}</td>
-                    <td>
+                    <td style="display: flex; gap: 0.5rem; align-items: center;">
                         <a href="{% url 'view_applicants' company.id %}" class="btn" style="background: rgba(255,255,255,0.1); color: #fff; padding: 0.5rem 1rem; font-size: 0.85rem;">View Applicants</a>
+                        <form action="{% url 'toggle_company_status' company.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            {% if company.is_active %}
+                                <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 0.5rem 1rem; font-size: 0.85rem; border: 1px solid rgba(239, 68, 68, 0.4);">Mark Closed</button>
+                            {% else %}
+                                <button type="submit" class="btn" style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.5rem 1rem; font-size: 0.85rem; border: 1px solid rgba(16, 185, 129, 0.4);">Mark Active</button>
+                            {% endif %}
+                        </form>
                     </td>
                 </tr>
                 {% empty %}

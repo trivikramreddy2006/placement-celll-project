@@ -22,6 +22,7 @@ class Application(models.Model):
     )
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='applications')
+    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='APPLIED')
     applied_at = models.DateTimeField(auto_now_add=True)
 

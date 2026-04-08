@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <a href="{% url 'student_dashboard' %}" style="color: var(--primary); text-decoration: none;">&larr; Back to Dashboard</a>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h2>{{ company.name }}</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">{{ company.description }}</p>
+    
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;">
+        <div>
+            <span style="display: block; color: var(--text-muted); font-size: 0.9rem;">Min CGPA Required</span>
+            <span style="font-size: 1.1rem; font-weight: 600;">{{ company.min_cgpa }}</span>
+        </div>
+        <div>
+            <span style="display: block; color: var(--text-muted); font-size: 0.9rem;">Max Backlogs Allowed</span>
+            <span style="font-size: 1.1rem; font-weight: 600;">{{ company.max_backlogs }}</span>
+        </div>
+        <div>
+            <span style="display: block; color: var(--text-muted); font-size: 0.9rem;">Status</span>
+            {% if company.is_active %}
+                <span style="color: var(--secondary); font-weight: 600;">Currently Accepting Applications</span>
+            {% else %}
+                <span style="color: var(--danger); font-weight: 600;">Closed</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if has_applied %}
+        <div class="alert success" style="text-align: center;">
+            <h3 style="margin-bottom: 0;">✅ You have already applied for this company</h3>
+        </div>
+    {% elif not company.is_active %}
+        <div class="alert error" style="text-align: center;">
+            <p style="margin-bottom: 0;">This company is no longer accepting applications.</p>
+        </div>
+    {% elif not is_eligible %}
+        <div class="alert error" style="text-align: center;">
+            <p style="margin-bottom: 0;">You do not meet the eligibility criteria to apply.</p>
+        </div>
+    {% else %}
+        <div style="border-top: 1px solid var(--border); padding-top: 2rem;">
+            <h3>Application Process</h3>
+            
+            {% if company.application_link %}
+                <div style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px; border-left: 4px solid var(--primary);">
+                    <h4>Step 1: Official Application</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">You must fill out the external official form for this company first.</p>
+                    <a href="{{ company.application_link }}" target="_blank" class="btn btn-primary">Open External Application Link</a>
+                </div>
+                <h4>Step 2: Submit Resume</h4>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">After filling the external link, upload your resume below to notify the placement cell that you applied.</p>
+            {% else %}
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Please upload your resume to apply for this company.</p>
+            {% endif %}
+
+            <form action="{% url 'apply_company' company.id %}" method="post" enctype="multipart/form-data" style="max-width: 500px;">
+                {% csrf_token %}
+                <div class="form-group" style="padding: 1rem; border: 1px dashed var(--border); border-radius: 8px; background: rgba(0,0,0,0.1);">
+                    <label for="resume" style="font-weight: 600; color: #fff;">Upload Resume (PDF format)</label>
+                    <input type="file" name="resume" id="resume" accept=".pdf" required style="border: none; padding-left: 0; background: transparent;">
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">Confirm Application & Submit</button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

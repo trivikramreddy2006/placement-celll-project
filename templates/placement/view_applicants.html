@@ -6,8 +6,13 @@
 </div>
 
 <div class="card" style="margin-bottom: 2rem;">
-    <h2>Applicants for {{ company.name }}</h2>
-    <p style="color: var(--text-muted);">Total Applications: {{ applications.count }}</p>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2>Applicants for {{ company.name }}</h2>
+            <p style="color: var(--text-muted);">Total Applications: {{ applications.count }}</p>
+        </div>
+        <a href="{% url 'export_applicants' company.id %}" class="btn btn-success">📥 Download Excel/CSV</a>
+    </div>
 </div>
 
 <div class="card">
@@ -20,6 +25,7 @@
                     <th>Branch</th>
                     <th>CGPA</th>
                     <th>Backlogs</th>
+                    <th>Resume</th>
                     <th>Applied At</th>
                 </tr>
             </thead>
@@ -35,11 +41,18 @@
                             {{ application.student.student_profile.active_backlogs }}
                         </span>
                     </td>
+                    <td>
+                        {% if application.resume %}
+                            <a href="{{ application.resume.url }}" target="_blank" style="color: var(--primary);">View Resume</a>
+                        {% else %}
+                            <span style="color: var(--text-muted);">N/A</span>
+                        {% endif %}
+                    </td>
                     <td style="color: var(--text-muted); font-size: 0.9rem;">{{ application.applied_at|date:"M d, Y, h:i A" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students have applied yet.</td>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No students have applied yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>

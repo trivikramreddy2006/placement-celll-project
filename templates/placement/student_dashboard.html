@@ -43,10 +43,7 @@
             <button class="btn" style="background: rgba(255,255,255,0.1); color: #fff; width: 100%; cursor: not-allowed;" disabled>Applied ✓</button>
         {% else %}
             {% if not profile.is_blacklisted and profile.active_backlogs <= company.max_backlogs and profile.cgpa >= company.min_cgpa %}
-                <form action="{% url 'apply_company' company.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Apply Now</button>
-                </form>
+                <a href="{% url 'company_details' company.id %}" class="btn btn-primary" style="width: 100%; display: block; text-align: center;">View Details & Apply</a>
             {% else %}
                 <button class="btn" style="background: rgba(239, 68, 68, 0.1); color: #f87171; width: 100%; cursor: not-allowed;" disabled>Not Eligible</button>
             {% endif %}
