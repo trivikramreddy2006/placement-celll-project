@@ -10,4 +10,8 @@ urlpatterns = [
     path('company/<int:company_id>/toggle/', views.toggle_company_status, name='toggle_company_status'),
     path('company/<int:company_id>/', views.company_details, name='company_details'),
     path('company/<int:company_id>/export/', views.export_applicants, name='export_applicants'),
+    path('queries/', views.queries_forum, name='queries_forum'),
+    path('queries/add/', views.add_query, name='add_query'),
+    path('queries/<int:query_id>/answer/', views.answer_query, name='answer_query'),
+    path('notifications/read/', views.read_notifications, name='read_notifications'),
 ]

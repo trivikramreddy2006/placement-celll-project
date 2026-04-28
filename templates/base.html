@@ -9,13 +9,81 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: var(--card-bg);
+            min-width: 300px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            z-index: 1000;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(16px);
+            padding: 10px;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .notif-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: block;
+        }
+        .notif-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        .badge-bell {
+            background: var(--danger);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <nav>
-        <a href="{% url 'dashboard' %}" class="brand">🚀 Elevate Placements</a>
-        <div class="links">
+        <a href="{% url 'dashboard' %}" class="brand">NIE STUDENT PLACEMENTS</a>
+        <div class="links" style="display: flex; align-items: center;">
             {% if user.is_authenticated %}
+                <div class="dropdown" style="margin-right: 1.5rem; cursor: pointer;">
+                    <span style="position: relative; font-size: 1.25rem;">
+                        🔔
+                        {% if unread_notifications_count > 0 %}
+                            <span class="badge-bell">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </span>
+                    <div class="dropdown-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 5px; border-bottom: 1px solid var(--border);">
+                            <strong style="color: #fff;">Notifications</strong>
+                            <a href="{% url 'read_notifications' %}" style="font-size: 0.8rem; color: var(--primary); margin-left: 0;">Mark all read</a>
+                        </div>
+                        {% for notif in recent_notifications %}
+                            <a href="{{ notif.link }}" class="notif-item" style="{% if not notif.is_read %}font-weight: 600;{% endif %}">
+                                {{ notif.message }}
+                                <br><small style="color: var(--text-muted); font-weight: normal;">{{ notif.created_at|timesince }} ago</small>
+                            </a>
+                        {% empty %}
+                            <p style="color: var(--text-muted); padding: 10px; font-size: 0.9rem; text-align: center;">No new notifications</p>
+                        {% endfor %}
+                    </div>
+                </div>
                 <span style="color: var(--text-muted); margin-right: 1.5rem;">Hello, {{ user.username }}</span>
+                <a href="{% url 'queries_forum' %}">Q&A Forum</a>
                 {% if user.is_teacher %}
                     <a href="{% url 'add_company' %}">Add Company</a>
                 {% endif %}

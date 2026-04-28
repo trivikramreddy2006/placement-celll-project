@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Company, Application
+from django.utils import timezone
+from django.contrib.auth import get_user_model
+from .models import Company, Application, Query, Notification
 from accounts.models import StudentProfile
 import csv
 from django.http import HttpResponse
@@ -166,3 +168,55 @@ def export_applicants(request, company_id):
         ])
         
     return response
+
+@login_required
+def queries_forum(request):
+    queries = Query.objects.order_by('-created_at').select_related('student', 'answered_by')
+    return render(request, 'placement/queries.html', {'queries': queries})
+
+@login_required
+def add_query(request):
+    User = get_user_model()
+    if request.method == 'POST' and request.user.is_student():
+        question = request.POST.get('question')
+        if question:
+            Query.objects.create(student=request.user, question=question)
+            
+            # Send notification to everyone indicating a new question was asked
+            users = User.objects.exclude(id=request.user.id)
+            notifications = [
+                Notification(recipient=user, message=f"New query posted by {request.user.username}.", link="/placement/queries/")
+                for user in users
+            ]
+            Notification.objects.bulk_create(notifications)
+            
+            messages.success(request, "Your query has been submitted successfully!")
+    return redirect('queries_forum')
+
+@login_required
+def answer_query(request, query_id):
+    User = get_user_model()
+    if request.method == 'POST' and request.user.is_teacher():
+        query = get_object_or_404(Query, id=query_id)
+        answer_text = request.POST.get('answer')
+        if answer_text:
+            query.answer = answer_text
+            query.answered_by = request.user
+            query.answered_at = timezone.now()
+            query.save()
+            
+            # Notify everyone about the answer
+            users = User.objects.exclude(id=request.user.id)
+            notifications = [
+                Notification(recipient=user, message=f"{request.user.username} answered {query.student.username}'s query.", link="/placement/queries/")
+                for user in users
+            ]
+            Notification.objects.bulk_create(notifications)
+            
+            messages.success(request, "Answer posted successfully.")
+    return redirect('queries_forum')
+
+@login_required
+def read_notifications(request):
+    Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
